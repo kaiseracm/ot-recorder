@@ -6,6 +6,17 @@ import { markerStyle, strokeStyle } from "../utils/map_leaflet.js";
 export async function initialize(dataUrl) {
 
   const data = fetchApiData({url: dataUrl});
+  var loca = (' ' + window.location).slice(1);
+  loca = loca.replace("geojson","linestring");
+  var sear=window.location.search;
+  sear = sear.replace("geojson","linestring");
+ 
+  const endpoint = "locations"
+  const apiUrl = new URL(`${ false ? "./" : "../" }${ false ? "ws" : "api/0" }${endpoint === undefined ? "" : `/${endpoint}`}`, loca);
+
+  apiUrl.search = sear
+
+  const data2 = fetchApiData({url: apiUrl});
 
   const map = L.map('map-canvas').setView([0.0, 0.0], 1);
 
@@ -62,6 +73,7 @@ export async function initialize(dataUrl) {
 
   map.addLayer(geojsonLayer);
 
+  geojsonLayer.addData(await data2);
   geojsonLayer.addData(await data);
   if (geojsonLayer.getBounds().isValid()) map.fitBounds(geojsonLayer.getBounds());
   else map.openTooltip('No Data!',L.latLng(0.0,0.0));

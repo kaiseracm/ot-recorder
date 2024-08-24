@@ -42,14 +42,17 @@
       import { fetchApiData } from "./utils/network.js";
       import { escapeHTML } from "./utils/misc.js";
 
-      const hours = 60 * 60 * 1000;
+      const minutes = 60 * 1000;
+      const hours = 60 * minutes;
       const days = 24 * hours;
 
       const f0 = new Date().toISOString();
-      const f12h = new Date(Date.now() - 12 * hours).toISOString();
+      const f24h = new Date(Date.now() - 24 * hours).toISOString();
       const f7d = new Date(Date.now() - 7 * days).toISOString();
-      const f30d = new Date(Date.now() - 24 * days).toISOString();
-
+      const f14d = new Date(Date.now() - 14 * days).toISOString();
+      const ftoday = new Date(Date.now() - new Date().getHours() * hours - new Date().getMinutes() * minutes).toISOString();
+      const fyesterday = new Date(Date.now() - new Date().getHours() * hours - new Date().getMinutes() * minutes - 1 * days).toISOString();
+      
       const data = await( fetchApiData({ endpoint: "last", includeSearchParams: true, rootLevel: true }));
 
       for (const d of data) {
@@ -64,12 +67,11 @@
         d.udev = `user=${ encodeURIComponent(d.username) }&device=${ encodeURIComponent(d.device) }`;
 
         const row = `<tr><td>${ escapeHTML `${ d.username } / ${ d.device }` }</td>
-        <td><a href='map/index.html?from=${ f12h }&to=${ f0 }&format=geojson&${ d.udev }'>12h</a></td>
+        <td><a href='map/index.html?from=${ ftoday }&to=${ f0 }&format=geojson&${ d.udev }'>today</a></td>
+        <td><a href='map/index.html?from=${ fyesterday }&to=${ ftoday }&format=geojson&${ d.udev }'>yesterday</a></td>
+        <td><a href='map/index.html?from=${ f24h }&to=${ f0 }&format=geojson&${ d.udev }'>24h</a></td>
         <td><a href='map/index.html?from=${ f7d }&to=${ f0 }&format=geojson&${ d.udev }'>7d</a></td>
-
-        <td><a href='map/index.html?from=${ f12h }&to=${ f0 }&format=linestring&${ d.udev }'>12h</a></td>
-        <td><a href='map/index.html?from=${ f7d }&to=${ f0 }&format=linestring&${ d.udev }'>7d</a></td>
-        <td><a href='map/index.html?from=${ f30d }&to=${ f0 }&format=linestring&${ d.udev }'>30d</a></td>
+        <td><a href='map/index.html?from=${ f14d }&to=${ f0 }&format=geojson&${ d.udev }'>14d</a></td>
         </tr>`;
 
         document.querySelector('#usertable > tbody:last-child').insertAdjacentHTML("beforeend", row);
@@ -88,7 +90,7 @@
     <div id='content'>
     <table id='usertable'>
       <thead>
-        <tr><th>User/Device</th><th>Points</th><th>Points</th><th>Track</th><th>Track</th><th>Track</th></tr>
+        <tr><th>User/Device</th><th></th><th></th><th></th><th></th><th></th></tr>
       </thead>
       <tbody>
       </tbody>
